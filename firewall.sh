@@ -2,6 +2,9 @@
 
 ip=^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$
 s="sudo"
+acceptArgs[0]="input"
+acceptArgs[1]="output"
+acceptArgs[2]="forward"
 if [[ -z $1 ]]
   then
     echo "no args given"
@@ -46,61 +49,49 @@ elif [[ $1 == "flush" ]] && [[ $2 == "all" ]]
   exit
 fi
 
-if [$1 == "drop"]; then
-  if [$2 =~ $ip]; then
-    if [$3 == "input"]; then
-      $s iptables -A INPUT -s $2 -j DROP
-    fi
-
-    if [$3 == "output"]; then
-      $s iptables -A OUTPUT -s $2 -j DROP
-    fi
-
-    if [$3 == "forward"]; then
-      $s iptables -A FORWARD -s $2 -j DROP
-    fi
-
-  if [$2 == "all"]; then
-    if [$3 == "input"]; then
-      $s iptables -P INPUT DROP
-    fi
-
-    if [$3 == "output"]; then
-      $s iptables -P OUTPUT DROP
-    fi
-
-    if [$3 == "forward"]; then
-      $s iptables -P FORWARD DROP
-    fi
+if [[ $1 == "drop" ]]
+ then
+  if [[ $2 =~ $ip ]]
+   then
+    for i in acceptArgs; do
+      if [[ $3 == $i ]]
+       then
+        $s iptables -A ${3^^} -s $2 -j ${1^^}
+        exit
+      fi
+    done
+  fi
+  if [[ $2 == "all" ]]
+   then
+    for i in acceptArgs; do
+      if [[ $3 == $i ]]
+       then
+        $s iptables -P ${3^^} ${1^^}
+        exit
+      fi
+    done
   fi
 fi
 
-if [$1 == "accept"]; then
-  if [$2 =~ $ip]; then
-    if [$3 == "input"]; then
-      $s iptables -A INPUT -s $2 -j ACCEPT
-    fi
-
-    if [$3 == "output"]; then
-      $s iptables -A OUTPUT -s $2 -j ACCEPT
-    fi
-
-    if [$3 == "forward"]; then
-      $s iptables -A FORWARD -s $2 -j ACCEPT
-    fi
-
-  if [$2 == "all"]; then
-    if [$3 == "input"]; then
-      $s iptables -P INPUT ACCEPT
-    fi
-
-    if [$3 == "output"]; then
-      $s iptables -P OUTPUT ACCEPT
-    fi
-
-    if [$3 == "forward"]; then
-      $s iptables -P FORWARD ACCEPT
-    fi
-
+if [[ $1 == "accept" ]]
+ then
+  if [[ $2 =~ $ip ]]
+   then
+    for i in acceptArgs; do
+      if [[ $3 == $i ]]
+       then
+        $s iptables -A ${3^^} -s $2 -j ${1^^}
+        exit
+      fi
+    done
+  fi
+  if [[ $2 == "all" ]]
+   then
+    for i in acceptArgs; do
+      if [[ $3 == $i ]]
+       then
+        $s iptables -P ${3^^} ${1^^}
+      fi
+    done
   fi
 fi
